@@ -29,6 +29,7 @@ def create_new_project_and_upload_fastq(project_name,sample_data_list,experiment
     __create_sample_and_upload_data(\
       api=myAPI,
       appSessionId=myAppSession.Id,
+      appSession=myAppSession,
       project_id=project.Id,
       sample_data_list=sample_data_list,
       exp_name=experiment_name
@@ -40,12 +41,13 @@ def create_new_project_and_upload_fastq(project_name,sample_data_list,experiment
       myAppSession.setStatus(myAPI,'complete',"failed file upload")             # comment for failed jobs
     raise
 
-def __create_sample_and_upload_data(api,appSessionId,project_id,sample_data_list,exp_name):
+def __create_sample_and_upload_data(api,appSessionId,appSession,project_id,sample_data_list,exp_name):
   '''
   An internal function for file upload
   
   :param api: An api instance
   :param appSessionId: An active appSessionId
+  :param appSession: An active app session
   :param project_id: An existing project_id
   :param sample_data_list: Sample data information
   :param exp_name: Experiment name
@@ -53,16 +55,16 @@ def __create_sample_and_upload_data(api,appSessionId,project_id,sample_data_list
   '''
   try:
     sample_number=0
-    for entry in data:
+    for entry in sample_data_list:
       sample_number += 1
       sample_name=entry['sample_name']
       read_count=entry['read_count']
       files=entry['fastq_path']
       read_length=entry['read_length']
 
-      myAppSession.\
+      appSession.\
       setStatus(\
-        myAPI,
+        api,
         'running',
         'uploading {0} of {1} samples'.format(sample_number,
                                               len(sample_data_list)
